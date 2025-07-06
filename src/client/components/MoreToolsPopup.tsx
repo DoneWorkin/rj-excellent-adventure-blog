@@ -18,7 +18,7 @@ export function MoreToolsPopup(props: MoreToolsPopupProps) {
     const [footerParsed, setFooterParsed] = React.useState<any[]>(props.config.fixedBlogPostFooterDesign)
 
     const testResourceNameMap = {
-        'yad': 'yad (Yet Another Dialog)',
+        'dolphin(flatpak)': 'Dolphin file browser (flatpak version)',
         'powershell': 'Powershell 7',
         'image magick': 'Image Magick',
         'pannellum': 'Pannellum',
@@ -36,8 +36,8 @@ export function MoreToolsPopup(props: MoreToolsPopupProps) {
         // linux does not require powershell
         delete testResourceNameMap['powershell']
     } else {
-        // windows does not need yad
-        delete testResourceNameMap['yad']
+        // windows does not need dolphin
+        delete testResourceNameMap['dolphin(flatpak)']
     }
     let testResourceExtraDescription = {
         'aws creds': 'Run \"aws configure\" in a CMD window, and provide the access tokens received from Alan. ' +

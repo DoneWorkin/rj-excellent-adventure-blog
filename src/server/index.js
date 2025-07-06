@@ -287,25 +287,30 @@ app.get('/preview', cors(corsOptions), function(req, res){
 
 app.get('/test-resources', cors(corsOptions), function(req, res){
     const found = []
-    const missing = ['yad', 'pannellum', 'powershell', 'image magick', 'hugin', 'python', 'pillow', 'numpy', 'open sans', 'lora', 'rock salt', 'aws', 'aws creds']
+    const missing = ['dolphin(flatpak)', 'pannellum', 'powershell', 'image magick', 'hugin', 'python', 'pillow', 'numpy', 'open sans', 'lora', 'rock salt', 'aws', 'aws creds']
     // test for powershell 7
     try {
         if(!isLinux){
             // linux does need powershell 7
             spawnSync('pwsh', ['-version'])
             found.push('powershell')
-        }
-        missing.splice(missing.indexOf('powershell'), 1)
+            missing.splice(missing.indexOf('powershell'), 1)
+       } else {
+           missing.splice(missing.indexOf('powershell'), 1)
+       }
     }
     catch(e) { }
     try {
         if(isLinux){
-            const res = spawnSync('yad', ['--version'], { encoding: 'utf-8' })
-            if(res.stdout.match(/GTK/g)){
-                found.push('yad')
+            const res = spawnSync('flatpak', ['run','org.kde.dolphin','--version'], { encoding: 'utf-8' })
+            if(res.stdout.match(/dolphin /g)){
+                found.push('dolphin(flatpak)')
+                missing.splice(missing.indexOf('dolphin(flatpak)'), 1)           
             }
+        } else {
+            missing.splice(missing.indexOf('dolphin(flatpak)'), 1)
         }
-        missing.splice(missing.indexOf('yad'), 1)
+ 
     }
     catch(e) { }
     // test for image magick
@@ -828,25 +833,24 @@ app.get('/choose-files', cors(corsOptions), function(req, res){
     //
     // See https://stackoverflow.com/questions/48014957/quotes-in-node-js-spawn-arguments
     const child = isLinux ? 
-        spawnSync('yad', [
-            '--file',
-            ...(multiple ? ['--multiple'] : []),
-            '--maximized',
-            '--add-preview',
-            '--large-preview',
-            `--filename="${cachedChooseFileDirectory}"`,
-            '--separator="\\n"'
-        ], { encoding: 'utf-8', shell: true }) :
-        spawnSync('pwsh.exe', ['-Command', './src/server/openFile.ps1', '' + (multiple ? 1 : 0)], {
+            spawnSync('python3', [
+                './src/server/PasteNSort.py', 
+                `"${cachedChooseFileDirectory}"`
+                ], { encoding: 'utf-8', shell: true }) :
+           spawnSync('pwsh.exe', ['-Command', './src/server/openFile.ps1', '' + (multiple ? 1 : 0)], {
             encoding: 'utf-8',
             shell: 'pwsh.exe'
-        })
-
-    const result = child.stdout.trim()
+            })
+    
+    let result = child.stdout.trim()
     if(result !== '' && isLinux){
         // save the folder as cachedChooseFileDirectory
         const chosenFile = result.split('\n')[0]
         cachedChooseFileDirectory = chosenFile.substring(0, chosenFile.lastIndexOf('/'))
+        // force a single file selection
+        if (!multiple) {
+            result = result.split('\n')[0]
+        }
     }
 
     res.type('txt')
