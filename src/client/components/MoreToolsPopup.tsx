@@ -11,6 +11,7 @@ import { BlogConfig } from '../types/blog-config'
 
 export function MoreToolsPopup(props: MoreToolsPopupProps) {
     const [tidyMediaFinished, setTidyMediaFinished] = React.useState(false)
+    const [tidyMediaStarted, setTidyMediaStarted] = React.useState(false)
     const [imgUpdate, setImgUpdate] = React.useState(0)
     const [resourceTestTriggered, setResourceTestTriggered] = React.useState(false)
     const [resourceTestRes, setResourceTestRes] = React.useState<ResourceTestResult | null>(null)
@@ -18,7 +19,7 @@ export function MoreToolsPopup(props: MoreToolsPopupProps) {
     const [footerParsed, setFooterParsed] = React.useState<any[]>(props.config.fixedBlogPostFooterDesign)
 
     const testResourceNameMap = {
-        'yad': 'yad (Yet Another Dialog)',
+        'dolphin(flatpak)': 'Dolphin file browser (flatpak version)',
         'powershell': 'Powershell 7',
         'image magick': 'Image Magick',
         'pannellum': 'Pannellum',
@@ -36,8 +37,8 @@ export function MoreToolsPopup(props: MoreToolsPopupProps) {
         // linux does not require powershell
         delete testResourceNameMap['powershell']
     } else {
-        // windows does not need yad
-        delete testResourceNameMap['yad']
+        // windows does not need dolphin
+        delete testResourceNameMap['dolphin(flatpak)']
     }
     let testResourceExtraDescription = {
         'aws creds': 'Run \"aws configure\" in a CMD window, and provide the access tokens received from Alan. ' +
@@ -176,7 +177,7 @@ export function MoreToolsPopup(props: MoreToolsPopupProps) {
                                 setResourceTestTriggered(true)
                                 testResources().then(v => setResourceTestRes(v))
                             }}>
-                                Search for Missing Resources
+                                Verify Required Software Resources
                             </button>
                         </div>
                     }
@@ -215,11 +216,12 @@ export function MoreToolsPopup(props: MoreToolsPopupProps) {
                     <div className='input-row'>
                         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             <button style={{marginBottom: 0}} onClick={() => {
+                                    setTidyMediaStarted(true)
                                     cleanupMedia(getAllReferencedMedia(props.pages)).then(() => {
                                         setTidyMediaFinished(true)
                                     })
                                 }}
-                                disabled={tidyMediaFinished}>
+                                disabled={tidyMediaStarted}>
                                 Tidy media folder
                             </button>
                             {tidyMediaFinished && <FaRegCircleCheck style={{color: 'green', marginLeft: '5px'}}/>}
