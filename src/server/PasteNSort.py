@@ -138,7 +138,7 @@ class ImageGridApp:
         geometry_string =  str(int(WINDOW_WIDTH_MULTIPLIER * screen_width)+1) + ",0," + str(int(screen_width - WINDOW_WIDTH_MULTIPLIER * screen_width)-1) + "," + str(screen_height)
         global window_id
         try:
-            for i in range(1,5):
+            for i in range(1,8):
                 # Find the window ID
                 result = subprocess.run(['wmctrl', '-l'], capture_output=True, text=True, check=True)
                 window_id = None
@@ -154,10 +154,10 @@ class ImageGridApp:
                 subprocess.run(['wmctrl', '-ir',window_id, '-e', f'0,{geometry_string}'], check=True)
                 #print(f"Resized window '{window_title}' on try {i} to {geometry_string}' (ID: {window_id})")
             else:
-                messagebox.showerror("Window with title '{window_title}' not found.")
+                messagebox.showerror(f"Window with title '{window_title}' not found.")
 
         except subprocess.CalledProcessError as e:
-            messagebox.showerror("Error executing wmctrl: {e}")
+            messagebox.showerror(f"Error executing wmctrl: {e}")
         except FileNotFoundError:
             messagebox.showerror("wmctrl command not found. Please ensure it's installed and in your PATH.")
                             
@@ -201,11 +201,11 @@ class ImageGridApp:
             img.thumbnail(THUMBNAIL_SIZE, Image.Resampling.LANCZOS)
             return ImageTk.PhotoImage(img)
         except FileNotFoundError:
-            messagebox.showerror("Error: File not found at {filepath}")
+            messagebox.showerror(f"Error: File not found at {filepath}")
             #print(f"Error: File not found at {filepath}")
             return None
         except Exception as e:
-            messagebox.showerror("Error loading image {filepath}: {e}")
+            messagebox.showerror(f"Error loading image {filepath}: {e}")
             #print(f"Error loading image {filepath}: {e}")
             return None
 

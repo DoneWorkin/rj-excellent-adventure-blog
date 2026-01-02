@@ -287,7 +287,7 @@ app.get('/preview', cors(corsOptions), function(req, res){
 
 app.get('/test-resources', cors(corsOptions), function(req, res){
     const found = []
-    const missing = ['dolphin(flatpak)', 'pannellum', 'powershell', 'image magick', 'hugin', 'python', 'pillow', 'numpy', 'open sans', 'lora', 'rock salt', 'aws', 'aws creds']
+    const missing = ['yad','dolphin(flatpak)','xclip', 'wmctrl', 'pannellum', 'powershell', 'image magick', 'hugin', 'python', 'pillow', 'numpy', 'open sans', 'lora', 'rock salt', 'aws', 'aws creds']
     // test for powershell 7
     try {
         if(!isLinux){
@@ -300,6 +300,21 @@ app.get('/test-resources', cors(corsOptions), function(req, res){
        }
     }
     catch(e) { }
+    // Linux uses yad for folder browsing
+    try {
+        if(isLinux){
+            const res = spawnSync('yad', ['--version'], { encoding: 'utf-8' })
+            if(res.stdout.match(/GTK/g)){
+                found.push('yad')
+                missing.splice(missing.indexOf('yad'), 1)
+            }
+        } else {
+            missing.splice(missing.indexOf('yad'), 1)
+        }
+ 
+    }
+    catch(e) { }
+    // Linux is using Dolphin flatpak for image browsing (through a python app)
     try {
         if(isLinux){
             const res = spawnSync('flatpak', ['run','org.kde.dolphin','--version'], { encoding: 'utf-8' })
@@ -309,6 +324,34 @@ app.get('/test-resources', cors(corsOptions), function(req, res){
             }
         } else {
             missing.splice(missing.indexOf('dolphin(flatpak)'), 1)
+        }
+ 
+    }
+    catch(e) { }
+    // Linux uses xclip for clipboard access (through a python app)
+    try {
+        if(isLinux){
+            const res = spawnSync('xclip', ['-help'], { encoding: 'utf-8' })
+            if(res.stderr.match(/Usage: xclip/g)){
+                found.push('xclip')
+                missing.splice(missing.indexOf('xclip'), 1)
+            }
+        } else {
+            missing.splice(missing.indexOf('xclip'), 1)
+        }
+ 
+    }
+    catch(e) { }
+    // Linux uses wmctrl under X11 for window management and control (through a python app)
+    try {
+        if(isLinux){
+            const res = spawnSync('wmctrl', ['--help'], { encoding: 'utf-8' })
+            if(res.stdout.match(/Usage: wmctrl/g)){
+                found.push('wmctrl')
+                missing.splice(missing.indexOf('wmctrl'), 1)
+            }
+        } else {
+            missing.splice(missing.indexOf('wmctrl'), 1)
         }
  
     }
